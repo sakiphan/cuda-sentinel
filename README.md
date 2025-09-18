@@ -30,7 +30,7 @@ A real-time monitoring and benchmarking tool for CUDA GPUs. Provides comprehensi
 
 ```bash
 # Clone the project
-git clone https://github.com/username/cuda-sentinel.git
+git clone https://github.com/sakiphan/cuda-sentinel.git
 cd cuda-sentinel
 
 # Start the monitoring stack
