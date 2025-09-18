@@ -1,0 +1,12 @@
+# Core dependencies
+click>=8.0.0              # CLI framework
+numpy>=1.21.0             # Numerical computations
+nvidia-ml-py>=11.495.46   # NVIDIA Management Library (preferred over pynvml)
+pandas>=1.5.0             # Data manipulation
+prometheus-client>=0.15.0 # Prometheus metrics export
+psutil>=5.9.0             # System and process utilities
+pydantic>=2.0.0           # Data validation and settings
+pynvml>=11.4.1            # NVIDIA Management Library (fallback)
+pyyaml>=6.0               # YAML configuration
+requests>=2.28.0          # HTTP requests
+rich>=12.0.0              # Rich terminal output

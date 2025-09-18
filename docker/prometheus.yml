@@ -1,0 +1,36 @@
+# Prometheus configuration for CUDA Sentinel
+global:
+  scrape_interval: 15s       # Set the scrape interval to every 15 seconds
+  evaluation_interval: 15s   # Evaluate rules every 15 seconds
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'
+rule_files:
+  - "gpu_rules.yml"
+
+# Scrape configuration
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # CUDA Sentinel metrics
+  - job_name: 'cuda-sentinel'
+    static_configs:
+      - targets: ['cuda-sentinel:8080']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    
+  # CUDA Sentinel on host (fallback)
+  - job_name: 'cuda-sentinel-host'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+    scrape_interval: 10s
+    metrics_path: /metrics

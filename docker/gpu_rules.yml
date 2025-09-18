@@ -1,0 +1,93 @@
+# Prometheus alerting rules for GPU monitoring
+groups:
+  - name: gpu_health_alerts
+    rules:
+      # High GPU temperature alert
+      - alert: GPUHighTemperature
+        expr: cuda_sentinel_gpu_temperature_celsius > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU {{ $labels.gpu }} temperature is high"
+          description: "GPU {{ $labels.gpu_name }} ({{ $labels.gpu }}) temperature is {{ $value }}°C, which is above 80°C threshold."
+
+      # Critical GPU temperature alert
+      - alert: GPUCriticalTemperature
+        expr: cuda_sentinel_gpu_temperature_celsius > 90
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "GPU {{ $labels.gpu }} temperature is critical"
+          description: "GPU {{ $labels.gpu_name }} ({{ $labels.gpu }}) temperature is {{ $value }}°C, which is above 90°C critical threshold."
+
+      # High GPU memory usage
+      - alert: GPUHighMemoryUsage
+        expr: (cuda_sentinel_gpu_memory_used_bytes / cuda_sentinel_gpu_memory_total_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU {{ $labels.gpu }} memory usage is high"
+          description: "GPU {{ $labels.gpu_name }} ({{ $labels.gpu }}) memory usage is {{ $value | humanizePercentage }}, which is above 90% threshold."
+
+      # High GPU power consumption
+      - alert: GPUHighPowerUsage
+        expr: (cuda_sentinel_gpu_power_draw_watts / cuda_sentinel_gpu_power_limit_watts) * 100 > 95
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU {{ $labels.gpu }} power usage is high"
+          description: "GPU {{ $labels.gpu_name }} ({{ $labels.gpu }}) power usage is {{ $value | humanizePercentage }} of limit."
+
+      # GPU health status alert
+      - alert: GPUUnhealthy
+        expr: cuda_sentinel_gpu_health_status > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU {{ $labels.gpu }} health status is not healthy"
+          description: "GPU {{ $labels.gpu_name }} ({{ $labels.gpu }}) health status is {{ $value }} (0=unknown, 1=healthy, 2=warning, 3=critical)."
+
+      # GPU critical health status
+      - alert: GPUCriticalHealth
+        expr: cuda_sentinel_gpu_health_status >= 3
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "GPU {{ $labels.gpu }} health status is critical"
+          description: "GPU {{ $labels.gpu_name }} ({{ $labels.gpu }}) health status is critical ({{ $value }})."
+
+      # GPU ECC errors
+      - alert: GPUECCErrors
+        expr: increase(cuda_sentinel_gpu_ecc_errors_uncorrected_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "GPU {{ $labels.gpu }} has uncorrected ECC errors"
+          description: "GPU {{ $labels.gpu_name }} ({{ $labels.gpu }}) has {{ $value }} uncorrected ECC errors in the last 5 minutes."
+
+      # GPU metrics scraping issues
+      - alert: GPUMetricsDown
+        expr: up{job="cuda-sentinel"} == 0 or up{job="cuda-sentinel-host"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU metrics collection is down"
+          description: "CUDA Sentinel metrics endpoint is not responding. Check if the service is running."
+
+      # Low benchmark performance
+      - alert: GPULowPerformance
+        expr: cuda_sentinel_benchmark_gflops < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU {{ $labels.gpu }} performance is low"
+          description: "GPU {{ $labels.gpu_name }} ({{ $labels.gpu }}) benchmark performance is {{ $value }} GFLOPS, which is below expected threshold."
